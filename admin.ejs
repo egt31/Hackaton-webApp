@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <table>
+        <tr>
+            <th>Appointment number</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Student ID</th>
+            <th>Current status</th>
+            <th>Action</th>
+        </tr>
+        <% students.forEach(student => { %>
+            <tr>
+                <td><%= student.student_id %></td>
+                <td><%= student.first_name %></td>
+                <td><%= student.last_name %></td>
+                <td><%= student.email %></td>
+                <td><%= student.school_id %></td>
+                <td><%= student.status %></td>
+                <td>
+                    <select name="status" id="status-<%= student.student_id %>" data-student-id="<%= student.student_id %>">
+                        <option value="Pending" <% if (student.status === 'Pending') { %>selected<% } %>>Pending</option>
+                        <option value="Completed" <% if (student.status === 'Completed') { %>selected<% } %>>Completed</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="update-status" data-student-id="<%= student.student_id %>">Update Status</button>
+                </td>                
+                
+                
+            </tr>
+        <% }); %>
+    </table>
+    
+    <script>
+        // JavaScript code for updating student status
+        document.querySelectorAll('.update-status').forEach(button => {
+            button.addEventListener('click', () => {
+                const studentId = button.getAttribute('data-student-id');
+                const statusSelect = document.getElementById('status-' + studentId);
+                const newStatus = statusSelect.value;
+    
+                fetch('/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId, status: newStatus })
+                })
+                .then(response => {
+                    if (response.status === 200) {
+                        alert('Status updated successfully');
+                        location.reload(); // Reload the page
+                    } else {
+                        response.text().then(errorMessage => {
+                            alert('Error updating status: ' + errorMessage);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+    
+    
+</body>
+</html>
